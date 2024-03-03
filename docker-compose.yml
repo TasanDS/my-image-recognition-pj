@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  dev:
+    build: . # カレントディレクトリのDockerfileをビルド
+    ports:
+      - '8888:8888' # ポート番号はjupyterlabの8888を指定
+    volumes:
+      - '.:/work' # コンテナ内のworkとホストのカレントディレクトリをマウント
+    tty: true
+    stdin_open: true
