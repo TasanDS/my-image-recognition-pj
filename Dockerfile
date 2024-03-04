@@ -7,7 +7,7 @@ RUN apt-get update && \
 	apt-get clean && \
 	rm -rf /var/lib/apt/lists/* && \
 	pip install --upgrade pip && \
-	pip install numpy pandas matplotlib seaborn scipy opencv-python scikit-learn torch torchvision jupyterlab && \
+	pip install numpy pandas matplotlib seaborn scipy opencv-python scikit-learn torch torchvision tqdm jupyterlab && \
 	rm -rf ~/.cache/pip && \
 	mkdir work
 
