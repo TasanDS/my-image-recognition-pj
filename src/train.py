@@ -23,14 +23,18 @@ def train_model(net, dataloaders_dict, criterion, optimizer, num_epochs):
     path_list: list
         list stored data path
     """
+    # initialize GPU
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    print('using device:', device)
+    net.to(device)
+    torch.backends.cudnn.benchmark = True
+
+    train_loss_hist = []
+    train_corrects_hist = []
+    val_loss_hist = []
+    val_corrects_hist = []
+    
     for epoch in range(num_epochs):
-
-        device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-        print('using device:', device)
-
-        net.to(device)
-
-        torch.backends.cudnn.benchmark = True
         
         print(f'Epoch {epoch+1}/{num_epochs}')
         print('---------------')
@@ -62,12 +66,27 @@ def train_model(net, dataloaders_dict, criterion, optimizer, num_epochs):
                         loss.backward()
                         optimizer.step()
     
-                epoch_loss += loss.item() * inputs.size(0)
-    
+                epoch_loss += loss.item()
                 epoch_corrects += torch.sum(preds == labels.data)
     
             epoch_loss = epoch_loss / len(dataloaders_dict[phase].dataset)
-            epoch_acc = epoch_corrects.double(
-            ) / len(dataloaders_dict[phase].dataset)
+            epoch_acc = epoch_corrects.float() / len(dataloaders_dict[phase].dataset)
     
             print(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
+
+            if phase == 'train':
+                train_loss_hist.append(epoch_loss)
+                train_corrects_hist.append(epoch_acc)
+            else:
+                val_loss_hist.append(epoch_loss)
+                val_corrects_hist.append(epoch_acc)
+
+    plt.plot(train_loss_hist, label='training loss')
+    plt.plot(val_loss_hist, label='validation loss')
+    plt.legend()
+    plt.show()
+
+    plt.plot(train_corrects_hist, label='training accuracy')
+    plt.plot(val_corrects_hist, label='validation accuracy')
+    plt.legend()
+    plt.show()

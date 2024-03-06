@@ -118,6 +118,6 @@ class ImageDataset(Dataset):
         img_transformed = self.transform(
             img, self.phase)
 
-        label = self.train_label_master[img_path[14:]
+        label = self.train_label_master[img_path[14:]]
 
         return img_transformed, label
