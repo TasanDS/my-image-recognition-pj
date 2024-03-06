@@ -1,7 +1,7 @@
 import torch
 from tqdm import tqdm
 
-def train_model(net, dataloaders_dict, criterion, optimizer, num_epochs):
+def train_model(net, dataloaders_dict, criterion, optimizer, num_epochs, early_stopping=None, save_path=None):
     """
     function for training model
 
@@ -29,10 +29,14 @@ def train_model(net, dataloaders_dict, criterion, optimizer, num_epochs):
     net.to(device)
     torch.backends.cudnn.benchmark = True
 
+    # lists for logging
     train_loss_hist = []
     train_corrects_hist = []
     val_loss_hist = []
     val_corrects_hist = []
+
+    best_val_loss = float('inf')
+    no_improve_cnt = 0
     
     for epoch in range(num_epochs):
         
@@ -47,9 +51,6 @@ def train_model(net, dataloaders_dict, criterion, optimizer, num_epochs):
     
             epoch_loss = 0.0
             epoch_corrects = 0
-    
-            if (epoch == 0) and (phase == 'train'):
-                continue
     
             for inputs, labels in tqdm(dataloaders_dict[phase]):
 
@@ -81,6 +82,23 @@ def train_model(net, dataloaders_dict, criterion, optimizer, num_epochs):
                 val_loss_hist.append(epoch_loss)
                 val_corrects_hist.append(epoch_acc)
 
+            if val_loss_hist[-1] < best_val_loss:
+                vest_val_loss = val_losses[-1]
+                no_improve_cnt = 0
+                if save_path is not None:
+                    state = {
+                    'model_state_dict': net.state_dict(),
+                    'optimizer_state_dict': optimizer.state_dict(),
+                    'val_loss': val_losses[-1]
+                    }
+                    torch.save(state, save_path)
+            else:
+                no_improve_cnt += 1
+
+            if early_stopping and no_improve_cnt >= early_stopping:
+                print('Stopping early')
+                break
+
     plt.plot(train_loss_hist, label='training loss')
     plt.plot(val_loss_hist, label='validation loss')
     plt.legend()
@@ -90,3 +108,5 @@ def train_model(net, dataloaders_dict, criterion, optimizer, num_epochs):
     plt.plot(val_corrects_hist, label='validation accuracy')
     plt.legend()
     plt.show()
+
+    return train_loss_hist, train_corrects_hist, val_loss_hist, val_corrects_hist
