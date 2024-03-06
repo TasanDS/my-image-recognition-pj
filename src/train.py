@@ -3,7 +3,25 @@ from tqdm import tqdm
 
 def train_model(net, dataloaders_dict, criterion, optimizer, num_epochs):
     """
-    
+    function for training model
+
+    Parameters
+    ----------
+    net: object
+        model to train
+    dataloaders_dict: dict
+        dictionary contained dataloaders of train and validation
+    criterion: object
+        loss function used for training
+    optimizer: object
+        optimizer used for training
+    num_epochs: int
+        number of epochs for iteration
+
+    Returns
+    -------
+    path_list: list
+        list stored data path
     """
     for epoch in range(num_epochs):
 

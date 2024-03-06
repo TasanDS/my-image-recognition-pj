@@ -58,6 +58,19 @@ class ImageTransform():
 
 
 def make_data_path_list(phase='train', rootpath='../data/'):
+    """
+    make list stored data path for train and test
+
+    Parameters
+    ----------
+    phase: 'train' or 'test'
+        Specify the preprocessing mode.
+
+    Returns
+    -------
+    path_list: list
+        list stored data path
+    """
     target_path = osp.join(rootpath+phase+'/**.png')
     path_list = []
 
@@ -68,6 +81,21 @@ def make_data_path_list(phase='train', rootpath='../data/'):
 
 
 class ImageDataset(Dataset):
+    """
+    Class for making dataset
+
+    Attributes
+    ----------
+    file_list: list
+        list stored data path
+    train_label_master: dict
+        dictionary of train picture and label
+    transform: object
+        instance for preprocessing
+    phase: 'train' or 'val'
+        Specify the preprocessing mode.
+    """
+    
     def __init__(self, file_list, train_label_master, transform=None, phase='train'):
         self.file_list = file_list
         self.transform = transform
@@ -75,16 +103,21 @@ class ImageDataset(Dataset):
         self.phase = phase
 
     def __len__(self):
+        """
+        Return number of pictures
+        """
         return len(self.file_list)
 
     def __getitem__(self, index):
-
+        """
+        Get the tensor of preprocessed image and label
+        """
         img_path = self.file_list[index]
         img = Image.open(img_path)
 
         img_transformed = self.transform(
             img, self.phase)
 
-        label = self.train_label_master[self.train_label_master['file_name']==img_path[14:]]['label_id'].item()
+        label = self.train_label_master[img_path[14:]
 
         return img_transformed, label
